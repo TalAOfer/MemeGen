@@ -1,0 +1,25 @@
+
+
+.header-container {
+    margin: 0 auto; 
+    width: 100%;
+    background-color: var(--color2);
+    /* position: fixed; */
+    /* top: 0; */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 1rem;
+}
+
+.header-container h2 {
+    display: inline-block;
+    flex:1
+}
+
+.nav-container {
+    flex: 1;
+    padding-right: 1rem;
+    display: flex;
+    justify-content: space-evenly;
+}

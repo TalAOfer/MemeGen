@@ -1,0 +1,15 @@
+.gallery-container {
+    margin: auto;
+    max-width: 1000px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    justify-content: space-between;
+}
+
+.gallery-container img {
+max-width: 21%;
+flex: 1;
+cursor: pointer;
+}
