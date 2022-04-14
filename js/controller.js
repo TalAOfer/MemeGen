@@ -7,9 +7,11 @@ var gCurrPage
 function onInit () {
     if (!gCurrPage || gCurrPage === 'gallery') {
         gCurrPage = 'gallery'
+        toggleChosenBtn('gallery')
         renderGallery()
     }
     else if (gCurrPage = 'meme') {
+        toggleChosenBtn('meme')
         renderCanvas()
         resizeCanvas()
         clearCanvas()    
@@ -18,21 +20,19 @@ function onInit () {
     }
 
 function resizeCanvas() {
+    if (gCurrPage = 'gallery') return
     const elContainer = document.querySelector('.canvas-container')
     gElCanvas.width = elContainer.offsetWidth - 50
     gElCanvas.height = elContainer.offsetHeight - 50
 }
 
-// function renderCanvas() {
-    
-// }
-
 function addListeners() {
     addMouseListeners()
     addTouchListeners()
     window.addEventListener('resize', () => {
+        if (gCurrPage = 'gallery') return
         resizeCanvas()
-        clearCanvas()
+        renderMeme()
     })
 }
 
@@ -80,4 +80,18 @@ function onChangeLine() {
 
 function onMoveText(direction) {
     moveText(direction)
+}
+
+function toggleChosenBtn(page) {
+    const elMemeBtn = document.querySelector('.meme-btn')
+    const elGalleryBtn = document.querySelector('.gallery-btn')
+
+    if (page === 'gallery') {
+        elGalleryBtn.classList.remove('unchosen-btn')
+        elMemeBtn.classList.add('unchosen-btn')
+
+    } else if (page === 'meme') {
+        elMemeBtn.classList.remove('unchosen-btn')
+        elGalleryBtn.classList.add('unchosen-btn')
+    }
 }

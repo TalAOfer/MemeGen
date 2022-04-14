@@ -25,9 +25,8 @@ const elContainer = document.querySelector('.main-container')
 var strHtmls = gGallery.map(image =>
 `<img onclick="onPickImg(${image.id})" src="img/squareTemp/${image.id}.jpg" alt=""></img>`
 )
-    const joinedStr = strHtmls.join()
+    const joinedStr = strHtmls.join('')
     const joinedFinalStr = `<div class="gallery-container"> ${joinedStr} </div>`
-    // console.log(joinedFinalStr)
     elContainer.innerHTML = joinedFinalStr
 
 }

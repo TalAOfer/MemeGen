@@ -1,4 +1,6 @@
-//COLOR 
+'use strict'
+
+const gDisable = {load: false, clear: true}
 
 var gMeme = {
     selectedImgId: 0,
@@ -10,16 +12,23 @@ const gCurrUserSettings = {
     stroke: 'black',
     fill: 'white',
     fontSize: 40,
-    fontType: 'david',
+    fontType: 'impact',
     align: 'left'
 }
 
 function saveLine(ev) {
-    ev.preventDefault()
-    const text = ev.target.elements[0].value
-    addLine(text)
-    ev.target.elements[0].value = ''
-    // gMeme.selectedLineIdx++
+    if (ev.type === 'click') {
+        const textBox = document.querySelector('.text-input')
+        let text = textBox.value
+        addLine(text)
+        textBox.value = ''
+
+    } else if (ev.type === 'submit') {
+        ev.preventDefault()
+        let text = ev.target.elements[0].value
+        addLine(text)
+        ev.target.elements[0].value = ''
+    }
 }
 
 function addLine(text) {
@@ -27,10 +36,9 @@ function addLine(text) {
     gMeme.lines.push({
         text: text,
         size: settings.fontSize,
-        font: settings.fontType,
-        align: settings.align,
-        fillColor: settings.fill,
-        strokeColor: settings.stroke,
+        font: null,
+        fillColor: null,
+        strokeColor: null,
         isMarked: false,
         position: null
     })
@@ -44,10 +52,10 @@ function getCurrUserSettings() {
     return gCurrUserSettings
 }
 
-
+// RENDER
 
 function renderMeme() {
-    imgId = gMeme.selectedImgId
+    const imgId = gMeme.selectedImgId
     var img = new Image();
     img.src = `img/squareTemp/${imgId}.jpg`
     img.onload = () => {
@@ -60,7 +68,67 @@ function renderMeme() {
 
 }
 
-// TEXT
+
+function renderCanvas() {
+    const elContainer = document.querySelector('.main-container')
+
+    var strHtml = `<div class="generator-container">
+        <div class="canvas-container">
+        <canvas id="my-canvas" width="400" height="400">
+        
+        </canvas>
+        </div>
+        <div class="controller-container">
+        
+        <div class="form-container">
+        <form onsubmit="saveLine(event)">
+        <input class="text-input" oninput1="drawText(event, this.value)" type="text" placeholder="enter your text here">
+        </form>
+        </div>
+        
+        <div class="main-buttons-container">
+        <button onclick="onMoveText('up')" class="control-btn up-btn"> ⬆️ </button>
+        <button onclick="onMoveText('down')" class="control-btn down-btn"> ⬇️ </button>
+        <button onclick="onChangeLine()" class="control-btn change-line-btn"> 🔃</button>
+        <button onclick= "saveLine(event)" class="control-btn"> <img src="img/icons/plus2.png" </button>
+        <button onclick="deleteLine()" class="control-btn"> 🗑️ </button>
+        </div>
+        
+        <div class="secondary-buttons-container">
+        <button onclick="changeFontSize('up')" class="control-btn"> <img src="img/icons/increase-font.png" alt=""> </button>
+        <button onclick="changeFontSize('down')" class="control-btn"> <img src="img/icons/decrease-font.png" alt=""> </button>
+        <button onclick="" class="control-btn t-a-left"> <img src="img/icons/align-left.png" alt=""> </button>
+        <button onclick="" class="control-btn t-a-center"> <img src="img/icons/align-center.png" alt=""> </button>
+        <button onclick="" class="control-btn t-a-right"> <img src="img/icons/align-right.png" alt=""> </button>
+        <select class="font-type-btn" onchange="changeFontType(this.value)" name="fonts" >
+        <option style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;" value="impact">Impact</option>
+        <option style="font-family:Arial, Helvetica, sans-serif" value="arial">Arial</option>
+        <option  style="font-family:'Times New Roman', Times, serif" value="times new roman">Times New Roman</option>
+        </select>
+        <label class="color-btn control-btn"> <img src="img/icons/palette.png" alt="">
+        <input type="color" name="fillColor" onchange="onChangeColor('fill', this.value)" hidden>
+        </label>
+        <label class="color-btn control-btn"> <img src="img/icons/outline.png" alt="">
+        <input type="color" name="strokeColor" onchange="onChangeColor('stroke', this.value)" hidden>
+        </label>
+        </div>
+
+        <div class="load-buttons-container">
+        <button onclick="_clearSelected()" class="load-button clear-btn" disabled> Clear </button>
+        <a href="#" onclick="onDownloadCanvas(this)" download="myphoto" ><button class="load-button download-btn control-btn active"><img src="img/icons/download.png"</button></a>
+        <a href="#" onclick="" >  <button class="load-button upload-btn control-btn active"><img src="img/icons/facebook.png"</button></a>
+        </div>
+
+        </div>
+        
+        </div>`
+    elContainer.innerHTML = strHtml
+
+    gElCanvas = document.getElementById('my-canvas')
+    gCtx = gElCanvas.getContext('2d')
+}
+
+// DRAW
 
 function drawText(txt, idx) {
 
@@ -80,11 +148,20 @@ function drawText(txt, idx) {
 
     gCtx.beginPath()
     gCtx.font = `${currLine.size}px ${settings.fontType}`;
-    // gCtx.textBaseline = 'middle';
     gCtx.textAlign = 'center';
     gCtx.lineWidth = 2;
-    gCtx.fillStyle = settings.fill;
-    gCtx.strokeStyle = settings.stroke;
+    console.log(currLine.fillColor)
+    if (!currLine.fillColor) {
+        gCtx.fillStyle = settings.fill
+        currLine.fillColor = settings.fill
+    }
+    else gCtx.fillStyle = currLine.fillColor
+
+    if (!currLine.strokeColor) {
+        gCtx.strokeStyle = settings.stroke
+        currLine.strokeColor = settings.stroke
+    }
+    else gCtx.strokeStyle = currLine.strokeColor
 
     gCtx.fillText(txt, x, y);
     gCtx.strokeText(txt, x, y);
@@ -111,72 +188,18 @@ function drawRect(x, y, idx) {
     gCtx.stroke();
 }
 
+
+// LINE MANIPULATION
+
 function moveText(direction) {
     _markFirst()
     const currLine = gMeme.lines[searchSelected()]
 
-    if (direction === 'down') currLine.position += 2
-    else if (direction === 'up') currLine.position -= 2
+    if (direction === 'down') currLine.position += 5
+    else if (direction === 'up') currLine.position -= 5
     renderMeme()
+
 }
-
-
-
-function renderCanvas() {
-    const elContainer = document.querySelector('.main-container')
-
-    var strHtml = `<div class="generator-container">
-        <div class="canvas-container">
-        <canvas id="my-canvas" width="400" height="400">
-        
-        </canvas>
-        </div>
-        <div class="controller-container">
-        
-        <div class="form-container">
-        <form onsubmit="saveLine(event)">
-        <input class="text-input" oninput1="drawText(event, this.value)" type="text" placeholder="enter your text here">
-        </form>
-        </div>
-        
-        <div class="main-buttons-container">
-        <button onclick ="onMoveText('up')" class="control-btn up-btn"> ⬆️ </button>
-        <button onclick ="onMoveText('down')" class="control-btn down-btn"> ⬇️ </button>
-        <button onclick ="onChangeLine()" class="control-btn change-line-btn"> 🔃</button>
-        <button class="control-btn down-btn"> ➕	</button>
-        <button class="control-btn down-btn"> 🗑️ </button>
-        </div>
-        
-        <div class="secondary-buttons-container">
-        <button onclick="changeFontSize('up')" class="control-btn down-btn"> 🗚 </button>
-        <button onclick="changeFontSize('down')" class="control-btn down-btn"> 🗛 </button>
-        <button onclick="" class="control-btn down-btn"> LR </button>
-        <button class="control-btn down-btn"> CR </button>
-        <button class="control-btn down-btn"> RL </button>
-        <select name="fonts">
-        <option value="font1">font1</option>
-        <option value="font2">font2</option>
-        <option value="font3">font3</option>
-        </select>
-        <label class="color-btn"> 🎨
-        <input type="color" name="fillColor" onchange="onChangeColor('fill', this.value)" hidden>
-        </label>
-        <label class="color-btn"> S
-        <input type="color" name="strokeColor" onchange="onChangeColor('stroke', this.value)" hidden>
-        </label>
-        </div>
-        
-        </div>
-        
-        </div>`
-    elContainer.innerHTML = strHtml
-
-    gElCanvas = document.getElementById('my-canvas')
-    gCtx = gElCanvas.getContext('2d')
-}
-
-
-
 
 function changeColor(type, val) {
     const settings = gCurrUserSettings
@@ -202,7 +225,7 @@ function changeLine() {
 
 
     else if ((gMeme.lines).length > 1) {
-        
+
         gMeme.lines.forEach((line, idx) => {
             if (idx !== gMeme.selectedLineIdx) line.isMarked = false
             else line.isMarked = true
@@ -214,9 +237,9 @@ function changeLine() {
         }
     }
     renderMeme()
+    disableLoad()
+    enableClear()
 }
-
-
 
 function changeFontSize(direction) {
     _markFirst()
@@ -226,6 +249,22 @@ function changeFontSize(direction) {
 
     renderMeme()
 }
+
+function deleteLine() {
+    const currLineIdx = searchSelected()
+    if (currLineIdx === undefined) return
+    const currLine = gMeme.lines[currLineIdx]
+    const lines = gMeme.lines
+    lines.splice(currLineIdx, 1)
+    renderMeme()
+}
+
+function changeFontType(type) {
+    gCurrUserSettings.fontType = type
+    renderMeme()
+}
+
+// HELPERS
 
 function getTextMetric(idx) {
     const currLine = gMeme.lines[idx]
@@ -248,8 +287,7 @@ function getTextMetric(idx) {
     return ({ width, height })
 }
 
-
-function searchSelected () {
+function searchSelected() {
     let selected
     gMeme.lines.forEach((line, idx) => {
         if (line.isMarked) selected = idx
@@ -259,35 +297,71 @@ function searchSelected () {
 
 
 function _markFirst() {
-    if (gMeme.lines.length === 1) {
-        gMeme.lines[0].isMarked = true
+    const nothingIsMarked = checkIsMarked()
+    if (nothingIsMarked) gMeme.lines[0].isMarked = true
+    disableLoad()
+    enableClear()
+}
+
+function _clearSelected() {
+    gMeme.lines.forEach((line) => {
+        line.isMarked = false
+    });
+    renderMeme()
+    enableDownload()
+    disableClear()
+}
+
+function onDownloadCanvas(elLink) {
+    console.log(gDisable.load)
+    if (!gDisable.load) {
+    const data = gElCanvas.toDataURL();
+    elLink.href = data;
+    elLink.download = 'my-canvas'
     }
 }
 
+function disableLoad() {
+    const elDownloadBtn = document.querySelector('.download-btn')
+    const elUploadBtn = document.querySelector('.upload-btn')
 
+    elDownloadBtn.classList.remove('active')
+    elUploadBtn.classList.remove('active')
+    elDownloadBtn.disabled = true
+    elUploadBtn.disabled = true
+    gDisable.load = true
+}
 
+function enableDownload() {
+    const elDownloadBtn = document.querySelector('.download-btn')
+    const elUploadBtn = document.querySelector('.upload-btn')
 
+    elDownloadBtn.disabled = false
+    elUploadBtn.disabled = false
+    elDownloadBtn.classList.add('active')
+    elUploadBtn.classList.add('active')
+    gDisable.load = false
+}
 
+function disableClear() {
+    const elClearBtn = document.querySelector('.clear-btn')
+    console.log(elClearBtn)
+    elClearBtn.disabled = true
+    elClearBtn.classList.remove('active')
+}
 
+function enableClear() {
+    const elClearBtn = document.querySelector('.clear-btn')
+    console.log(elClearBtn)
+    elClearBtn.disabled = false
+    elClearBtn.classList.add('active')
+}
 
-
-
-// function findLineById(id) {
-//     const currMeme = gMeme.find(meme => {
-//         meme.selectedImgId === id
-//     }
-//     )
-//     return currMeme
-// }
-
-
-// function drawImg(imgId) {
-    //     gMeme.selectedImgId = imgId
-//     gIsDone = false
-//     var img = new Image();
-//     img.src = `img/squareTemp/${imgId}.jpg`
-//     img.onload = () => {
-    //         gCtx.drawImage(img, 0, 0, gElCanvas.width, gElCanvas.height);
-    //         // drawText()
-    //     };
-    // }
+function checkIsMarked() {
+    let nothingIsMarked = null
+    gMeme.lines.forEach(line => {
+        if (line.isMarked) nothingIsMarked = false
+        else nothingIsMarked = true
+    })
+    return nothingIsMarked
+}

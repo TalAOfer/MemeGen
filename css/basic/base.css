@@ -9,5 +9,10 @@ body {
 }
 
 button {
-    background-color: var(--color4);
+    background-color: var(--color6);
+    color: var(--color1);
+    padding: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
