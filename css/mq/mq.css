@@ -24,7 +24,6 @@
         display: grid;
         grid-template-columns: 130px 250px 100px;
         grid-template-rows: 1fr 5fr;
-        padding-bottom: 10px;
     }
 
     .secondary-buttons-container {
@@ -91,13 +90,13 @@
     }
 
     .canvas-container canvas{
-        height: 18rem;
-        width: 18rem;
+        height: 16rem;
+        width: 16rem;
     }
 
     .canvas-container {
-        height: 20rem;
-        width: 20rem;
+        height: 18rem;
+        width: 18rem;
     }
 
     .control-btn {
@@ -108,6 +107,7 @@
     .controller-container { 
     grid-template-columns: 10px 250px 10px;
         grid-template-rows: 35px 70px 125px 70px;
+        padding-bottom: 0px;
     }
 
     .main-buttons-container {
@@ -152,5 +152,14 @@
 
     select.font-type-btn {
         grid-row:2
+    }
+
+    .header-container {
+    padding-left: 0;
+    }
+
+    .header-container .img-container {
+        flex: 1;
+        padding: 14px;
     }
 }

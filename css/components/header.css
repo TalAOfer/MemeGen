@@ -25,7 +25,6 @@
 
 .nav-container {
     flex: 1;
-    padding-right: 1rem;
     display: flex;
     justify-content: space-evenly;
 }
@@ -49,6 +48,8 @@ border-radius: 8rem;
     border: var(--color5) solid 1px;
 }
 
-
+.meme-btn {
+    margin-right: 6px;
+}
 
 
